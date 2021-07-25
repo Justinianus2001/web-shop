@@ -55,7 +55,7 @@
                 <div class="header_bottom">
                 <ul class="option">
                     <li id="search" class="search">
-                        <form href="{{route('search')}}" method="GET">
+                        <form action="{{route('search')}}" method="GET">
                             <input class="search-submit" type="submit" value="">
                             <input class="search-input" placeholder="Enter your search key" type="text" name="key">
                         </form>

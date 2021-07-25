@@ -95,7 +95,6 @@
             <div class="products-list">
             <div class="toolbar">
                 <div class="sorter">
-                @if(!empty($type))
                 <div class="view-mode">
                     <a href="{{route('product-list', $type)}}" class="list active">
                     List
@@ -104,7 +103,6 @@
                     Grid
                     </a>
                 </div>
-                @endif
                 <div class="sort-by">
                     Sort by: 
                     <select name="" >
@@ -217,7 +215,6 @@
             </ul>
             <div class="toolbar">
                 <div class="sorter bottom">
-                @if(!empty($type))
                 <div class="view-mode">
                     <a href="{{route('product-list', $type)}}" class="list active">
                     List
@@ -226,7 +223,6 @@
                     Grid
                     </a>
                 </div>
-                @endif
                 <div class="sort-by">
                     Sort by: 
                     <select name="" >

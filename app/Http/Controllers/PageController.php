@@ -57,12 +57,16 @@ class PageController extends Controller
     }
 
     public function getAddToCart(Request $request, $id) {
-        $product = Product::find($id);
-        $oldCart = Session('cart') ? Session::get('cart') : null;
-        $cart = new Cart($oldCart);
-        $cart->add($product, $id);
-        $request->session()->put('cart', $cart);
-        return redirect()->back();
+        if (Auth::check()) {
+            $product = Product::find($id);
+            $oldCart = Session('cart') ? Session::get('cart') : null;
+            $cart = new Cart($oldCart);
+            $cart->add($product, $id);
+            $request->session()->put('cart', $cart);
+            return redirect()->back();
+        } else {
+            return redirect()->route('login');
+        }
     }
 
     public function getDelCart(Request $request, $id) {
@@ -78,7 +82,11 @@ class PageController extends Controller
     }
 
     public function getCheckOut() {
-        return view('page.checkout');
+        if (Auth::check()) {
+            return view('page.checkout');
+        } else {
+            return redirect()->route('login');
+        }
     }
 
     public function postCheckOut(Request $request) {
@@ -113,7 +121,11 @@ class PageController extends Controller
     }
 
     public function getLogin() {
-        return view('page.login');
+        if (Auth::check()) {
+            return redirect()->route('index');
+        } else {
+            return view('page.login');
+        }
     }
 
     public function postLogin(Request $request) {
@@ -176,10 +188,11 @@ class PageController extends Controller
     }
 
     public function getSearch(Request $request) {
-        $list_product = Product::where('name', 'like', '%' . $request->key . '%')
+        $slide = Slide::all();
+        $search_product = Product::where('name', 'like', '%' . $request->key . '%')
                                 ->orWhere('unit_price', 'like', $request->key)
                                 ->orWhere('promotion_price', 'like', $request->key)
                                 ->orWhere('unit', 'like', '%' . $request->key . '%')->get();
-        return view('page.product_list', compact('list_product'));
+        return view('page.search', compact('slide', 'search_product'));
     }
 }
