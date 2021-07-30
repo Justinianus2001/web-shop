@@ -16,7 +16,7 @@ class Cart
 		}
 	}
 
-	public function add($item, $id) {
+	public function add($item, $id, $qty) {
 		$price = $item->promotion_price != 0 ? $item->promotion_price : $item->unit_price;
 		$cart = ['qty' => 0, 'price' => $price, 'item' => $item];
 		if ($this->items) {
@@ -24,11 +24,11 @@ class Cart
 				$cart = $this->items[$id];
 			}
 		}
-		$cart['qty']++;
+		$cart['qty'] += $qty;
 		$cart['price'] = $price * $cart['qty'];
 		$this->items[$id] = $cart;
-		$this->totalQty ++;
-		$this->totalPrice += $price;
+		$this->totalQty += $qty;
+		$this->totalPrice += $price * $qty;
 	}
 	
 	public function reduceByOne($id) {

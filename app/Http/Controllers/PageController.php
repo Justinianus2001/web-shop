@@ -18,31 +18,37 @@ class PageController extends Controller
 {
     public function getIndex() {
         $slide = Slide::all();
-        $new_product = Product::where('new', 1)->get();
-        $sale_product = Product::where('promotion_price', '<>', 0)->get();
+        $new_product = Product::where('new', 1)->inRandomOrder()->get();
+        $sale_product = Product::where('promotion_price', '<>', 0)->inRandomOrder()->get();
         return view('page.index', compact('slide', 'new_product', 'sale_product'));
     }
 
     public function getProductGrid($type) {
         if ($type == -1) {
             $list_product = Product::where('promotion_price', '<>', 0)->get();
+            $sub_product = Product::where('promotion_price', '<>', 0)->paginate(15);
         } elseif ($type == 0) {
             $list_product = Product::where('new', 1)->get();
+            $sub_product = Product::where('new', 1)->paginate(15);
         } else {
             $list_product = Product::where('id_type', $type)->get();
+            $sub_product = Product::where('id_type', $type)->paginate(15);
         }
-        return view('page.product_grid', compact('type', 'list_product'));
+        return view('page.product_grid', compact('type', 'list_product', 'sub_product'));
     }
 
     public function getProductList($type) {
         if ($type == -1) {
             $list_product = Product::where('promotion_price', '<>', 0)->get();
+            $sub_product = Product::where('promotion_price', '<>', 0)->paginate(10);
         } elseif ($type == 0) {
             $list_product = Product::where('new', 1)->get();
+            $sub_product = Product::where('new', 1)->paginate(10);
         } else {
             $list_product = Product::where('id_type', $type)->get();
+            $sub_product = Product::where('id_type', $type)->paginate(10);
         }
-        return view('page.product_list', compact('type', 'list_product'));
+        return view('page.product_list', compact('type', 'list_product', 'sub_product'));
     }
 
     public function getProduct(Request $request) {
@@ -58,10 +64,14 @@ class PageController extends Controller
 
     public function getAddToCart(Request $request, $id) {
         if (Auth::check()) {
+            $qty = 1;
+            if (!empty($request->quantity)) {
+                $qty = $request->quantity;
+            }
             $product = Product::find($id);
             $oldCart = Session('cart') ? Session::get('cart') : null;
             $cart = new Cart($oldCart);
-            $cart->add($product, $id);
+            $cart->add($product, $id, $qty);
             $request->session()->put('cart', $cart);
             return redirect()->back();
         } else {
@@ -83,41 +93,69 @@ class PageController extends Controller
 
     public function getCheckOut() {
         if (Auth::check()) {
-            return view('page.checkout');
+            $user = Auth::user();
+            return view('page.checkout', compact('user'));
         } else {
             return redirect()->route('login');
         }
     }
 
     public function postCheckOut(Request $request) {
-        $cart = Session::get('cart');
-        $customer = new Customer;
-        $customer->name = $request->name;
-        $customer->gender = $request->gender;
-        $customer->email = $request->email;
-        $customer->address = $request->address;
-        $customer->phone_number = $request->phone;
-        $customer->note = $request->note;
-        $customer->save();
+        if (Auth::check()) {
+            $cart = Session::get('cart');
+            $customer = new Customer;
+            $customer->name = $request->name;
+            $customer->gender = $request->gender;
+            $customer->email = $request->email;
+            $customer->address = $request->address;
+            $customer->phone_number = $request->phone;
+            $customer->note = $request->note;
+            $customer->save();
 
-        $bill = new Bill;
-        $bill->id_customer = $customer->id;
-        $bill->date_order = date('Y-m-d');
-        $bill->total = $cart->totalPrice;
-        $bill->payment = $request->payment_method;
-        $bill->note = $request->note;
-        $bill->save();
+            $user = Auth::user();
 
-        foreach ($cart->items as $key => $value) {
-            $bill_detail = new BillDetail;
-            $bill_detail->id_bill = $bill->id;
-            $bill_detail->id_product = $key;
-            $bill_detail->quantity = $value['qty'];
-            $bill_detail->unit_price = $value['price'] / $value['qty'];
-            $bill_detail->save();
+            $bill = new Bill;
+            $bill->id_user = $user->id;
+            $bill->id_customer = $customer->id;
+            $bill->date_order = date('Y-m-d');
+            $bill->total = $cart->totalPrice;
+            $bill->payment = $request->payment_method;
+            $bill->note = $request->note;
+            $bill->status = 0;
+            $bill->save();
+
+            foreach ($cart->items as $key => $value) {
+                $bill_detail = new BillDetail;
+                $bill_detail->id_bill = $bill->id;
+                $bill_detail->id_product = $key;
+                $bill_detail->quantity = $value['qty'];
+                $bill_detail->unit_price = $value['price'] / $value['qty'];
+                $bill_detail->save();
+            }
+            Session::forget('cart');
+            return redirect()->route('order-history');
+        } else {
+            return redirect()->route('login');
         }
-        Session::forget('cart');
-        return redirect()->back();
+    }
+
+    public function getOrderHistory() {
+        if (Auth::check()) {
+            $userId = Auth::user()->id;
+            $bill = Bill::where('id_user', $userId)->get();
+            return view('page.order_history', compact('bill'));
+        } else {
+            return redirect()->route('login');
+        }
+    }
+
+    public function getOrderHistoryDetail($id) {
+        if (Auth::check()) {
+            $list_product = BillDetail::where('id_bill', $id)->leftJoin('products', 'id_product', 'products.id')->get();
+            return view('page.order_history_detail', compact('list_product'));
+        } else {
+            return redirect()->route('login');
+        }
     }
 
     public function getLogin() {
@@ -129,8 +167,7 @@ class PageController extends Controller
     }
 
     public function postLogin(Request $request) {
-        $this->validate($request,
-            [
+        $this->validate($request, [
                 'email' => 'required|email',
                 'password' => 'required|min:6|max:20'
             ], [
@@ -143,7 +180,7 @@ class PageController extends Controller
         );
         $credentials = array('email' => $request->email, 'password' => $request->password);
         if (Auth::attempt($credentials)) {
-            return redirect()->back();
+            return redirect()->route('index');
         } else {
             return redirect()->back();
         }
@@ -159,32 +196,79 @@ class PageController extends Controller
     }
 
     public function postSignUp(Request $request) {
-        $this->validate($request,
-            [
+        $this->validate($request, [
                 'email' => 'required|email|unique:users,email',
                 'name' => 'required',
+                'phone' => 'required',
                 'password' => 'required|min:6|max:20',
-                're_password' => 'required|same:password'
+                're_password' => 'required|same:password',
+                'address' => 'required'
             ], [
                 'email.required' => 'Email not null',
                 'email.email' => 'Wrong email format',
-                'email.unique' => 'Invalid email',
+                'email.unique' => 'Email has been used',
                 'name.required' => 'Name not null',
+                'phone.required' => 'Phone not null',
                 'password.required' => 'Password not null',
                 'password.min' => 'Password length must contain at least 6 characters',
                 'password.max' => 'Password length must contain at most 20 characters',
                 're_password.required' => 'Confirm password not null',
-                're_password.same' => 'Confirm password not equal password'
+                're_password.same' => 'Confirm password not equal password',
+                'address.required' => 'Address not null'
             ]
         );
-        $user = new User();
+        $user = new User;
         $user->full_name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->phone = $request->phone;
         $user->address = $request->address;
         $user->save();
-        return redirect()->back();
+        return redirect()->route('login');
+    }
+
+    public function getEditInfo() {
+        if (Auth::check()) {
+            $user = Auth::user();
+            return view('page.info_edit', compact('user'));
+        } else {
+            return redirect()->route('login');
+        }
+    }
+
+    public function postEditInfo(Request $request) {
+        if (Auth::check()) {
+            $userId = Auth::user()->id;
+            $this->validate($request, [
+                    'email' => 'required|email|unique:admins,username,' . $userId,
+                    'full_name' => 'required',
+                    'phone' => 'required',
+                    'new_password' => 'nullable|min:6|max:20',
+                    'address' => 'required'
+                ], [
+                    'email.required' => 'Email not null',
+                    'email.email' => 'Wrong email format',
+                    'email.unique' => 'Email has been used',
+                    'full_name.required' => 'Full Name not null',
+                    'phone.required' => 'Phone not null',
+                    'new_password.min' => 'Password length must contain at least 6 characters',
+                    'new_password.max' => 'Password length must contain at most 20 characters',
+                    'address.required' => 'Address not null'
+                ]
+            );
+            $user = User::find($userId);
+            $user->full_name = $request->full_name;
+            $user->email = $request->email;
+            if (!empty($request->new_password)) {
+                $user->password = Hash::make($request->new_password);
+            }
+            $user->phone = $request->phone;
+            $user->address = $request->address;
+            $user->save();
+            return redirect()->back();
+        } else {
+            return redirect()->route('login');
+        }
     }
 
     public function getSearch(Request $request) {
@@ -192,7 +276,7 @@ class PageController extends Controller
         $search_product = Product::where('name', 'like', '%' . $request->key . '%')
                                 ->orWhere('unit_price', 'like', $request->key)
                                 ->orWhere('promotion_price', 'like', $request->key)
-                                ->orWhere('unit', 'like', '%' . $request->key . '%')->get();
+                                ->orWhere('unit', 'like', '%' . $request->key . '%')->inRandomOrder()->get();
         return view('page.search', compact('slide', 'search_product'));
     }
 }

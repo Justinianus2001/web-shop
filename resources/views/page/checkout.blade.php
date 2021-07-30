@@ -12,21 +12,12 @@
                 <table class="shop-table">
                     <thead>
                         <tr>
-                            <th>
-                                Image
-                            </th>
-                            <th>
-                                Details
-                            </th>
-                            <th>
-                                Price
-                            </th>
-                            <th>
-                                Quantity
-                            </th>
-                            <th>
-                                Total
-                            </th>
+                            <th>Image</th>
+                            <th>Details</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th>Delete</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -60,7 +51,7 @@
                             </td>
                             <td>
                                 <h5>
-                                    <strong class="red">
+                                    <strong>
                                         @if($product['item']['promotion_price'] != 0)
                                         {{number_format($product['item']['promotion_price'] * $product['qty'])}}
                                         @else
@@ -70,23 +61,58 @@
                                     </strong>
                                 </h5>
                             </td>
+                            <td>
+                                <a href="{{route('del-cart', $product['item']['id'])}}">
+                                    <img src="source/images/remove.png" alt="">
+                                </a>
+                            </td>
                         </tr>
                         @endforeach
-                        @else
+                        @endif
                         <tr>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
                             <td>
+                                <h5>
+                                    @if(Session::has('cart'))
+                                    {{number_format(Session('cart')->totalQty)}}
+                                    @else
+                                    0
+                                    @endif
+                                </h5>
                             </td>
                             <td>
+                                <h5>
+                                    <strong class="red">
+                                        @if(Session::has('cart'))
+                                        {{number_format(Session('cart')->totalPrice)}}
+                                        @else
+                                        0
+                                        @endif
+                                        VNĐ
+                                    </strong>
+                                </h5>
                             </td>
-                            <td>
-                            </td>
-                            <td>
-                            </td>
-                            <td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6">
+                                <a href="{{route('index')}}">
+                                    <button class="pull-left">
+                                        Continue Shopping
+                                    </button>
+                                </a>
+                                <a href="{{route('order-history')}}">
+                                    <button class=" pull-right">
+                                        Order History
+                                    </button>
+                                </a>
                             </td>
                         </tr>
-                        @endif
-                    </tbody>
+                    </tfoot>
                 </table>
                 <div class="clearfix">
                 </div>
@@ -101,25 +127,25 @@
                                 <form>
                                     <div class="form-block">
                                         <label for="name">Name *</label>
-                                        <input type="text" id="name" name="name" placeholder="Name" required>
+                                        <input type="text" id="name" name="name" placeholder="Name" value="{{$user->full_name}}" required>
                                     </div>
                                     <div class="form-block">
                                         <label>Gender *</label>
-                                        <input id="gender" type="radio" class="input-radio" name="gender" value="men" checked="checked" style="width: 10%"><p>Men</p>
+                                        <input id="gender" type="radio" class="input-radio" name="gender" value="Men" checked="checked" style="width: 10%"><p>Men</p>
                                         <div class="clearfix"></div>
-                                        <input id="gender" type="radio" class="input-radio" name="gender" value="women" style="width: 10%"><p>Women</p>
+                                        <input id="gender" type="radio" class="input-radio" name="gender" value="Women" style="width: 10%"><p>Women</p>
                                     </div>
                                     <div class="form-block">
                                         <label for="email">Email *</label>
-                                        <input type="email" id="email" name="email" required placeholder="expample@gmail.com">
+                                        <input type="email" id="email" name="email" placeholder="expample@gmail.com" value="{{$user->email}}" required>
                                     </div>
                                     <div class="form-block">
                                         <label for="adress">Address *</label>
-                                        <input type="text" id="address" name="address" placeholder="Street Address" required>
+                                        <input type="text" id="address" name="address" placeholder="Street Address" value="{{$user->address}}" required>
                                     </div>
                                     <div class="form-block">
                                         <label for="phone">Phone *</label>
-                                        <input type="text" id="phone" name="phone" placeholder="+84 xxx xxx xxx" required>
+                                        <input type="text" id="phone" name="phone" placeholder="+84 xxx xxx xxx" value="{{$user->phone}}" required>
                                     </div>
                                     <div class="form-block">
                                         <label for="notes">Note</label>
@@ -178,9 +204,15 @@
                                     <input type="radio" class="input-radio" name="payment_method" value="ATM" style="width: 10%"><p>ATM</p>
                                 </div>
                             </div>
+                            @if(Session::has('cart'))
                             <button type="submit">
                                 Payment
                             </button>
+                            @else
+                            <button type="submit" disabled>
+                                Payment
+                            </button>
+                            @endif
                         </div>
                     </div>
                 </form>

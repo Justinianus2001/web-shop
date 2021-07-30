@@ -95,66 +95,22 @@
             <div class="products-list">
             <div class="toolbar">
                 <div class="sorter">
-                <div class="view-mode">
-                    <a href="{{route('product-list', $type)}}" class="list active">
-                    List
-                    </a>
-                    <a href="{{route('product-grid', $type)}}" class="grid">
-                    Grid
-                    </a>
-                </div>
-                <div class="sort-by">
-                    Sort by: 
-                    <select name="" >
-                    <option value="Default" selected >
-                        Default
-                    </option>
-                    <option value="Name">
-                        Name
-                    </option>
-                    <option value="Price">
-                        Price
-                    </option>
-                    </select>
-                </div>
-                <div class="limiter">
-                    Show: 
-                    <select name="">
-                    <option value="3" selected>
-                        3
-                    </option>
-                    <option value="6">
-                        6
-                    </option>
-                    <option value="9">
-                        9
-                    </option>
-                    </select>
-                </div>
+                    <div class="view-mode">
+                        <a href="{{route('product-list', $type)}}" class="list active">
+                        List
+                        </a>
+                        <a href="{{route('product-grid', $type)}}" class="grid">
+                        Grid
+                        </a>
+                    </div>
                 </div>
                 <div class="pager">
-                <a href="#" class="prev-page">
-                    <i class="fa fa-angle-left">
-                    </i>
-                </a>
-                <a href="#" class="active">
-                    1
-                </a>
-                <a href="#">
-                    2
-                </a>
-                <a href="#">
-                    3
-                </a>
-                <a href="#" class="next-page">
-                    <i class="fa fa-angle-right">
-                    </i>
-                </a>
+                    {{$sub_product->links()}}
                 </div>
             </div>
             <p>Found {{count($list_product)}} product(s)</p>
             <ul class="products-listItem">
-                @foreach($list_product as $product)
+                @foreach($sub_product as $product)
                 <li class="products">
                     @if($product->new != 0)
                     <div class="offer">New</div>
@@ -215,61 +171,17 @@
             </ul>
             <div class="toolbar">
                 <div class="sorter bottom">
-                <div class="view-mode">
-                    <a href="{{route('product-list', $type)}}" class="list active">
-                    List
-                    </a>
-                    <a href="{{route('product-grid', $type)}}" class="grid">
-                    Grid
-                    </a>
-                </div>
-                <div class="sort-by">
-                    Sort by: 
-                    <select name="" >
-                    <option value="Default" selected>
-                        Default
-                    </option>
-                    <option value="Name">
-                        Name
-                    </option>
-                    <option value="Price">
-                        Price
-                    </option>
-                    </select>
-                </div>
-                <div class="limiter">
-                    Show: 
-                    <select name="" >
-                    <option value="3" selected>
-                        3
-                    </option>
-                    <option value="6">
-                        6
-                    </option>
-                    <option value="9">
-                        9
-                    </option>
-                    </select>
-                </div>
+                    <div class="view-mode">
+                        <a href="{{route('product-list', $type)}}" class="list active">
+                        List
+                        </a>
+                        <a href="{{route('product-grid', $type)}}" class="grid">
+                        Grid
+                        </a>
+                    </div>
                 </div>
                 <div class="pager">
-                <a href="#" class="prev-page">
-                    <i class="fa fa-angle-left">
-                    </i>
-                </a>
-                <a href="#" class="active">
-                    1
-                </a>
-                <a href="#">
-                    2
-                </a>
-                <a href="#">
-                    3
-                </a>
-                <a href="#" class="next-page">
-                    <i class="fa fa-angle-right">
-                    </i>
-                </a>
+                    {{$sub_product->links()}}
                 </div>
             </div>
             </div>

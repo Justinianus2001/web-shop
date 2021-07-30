@@ -41,7 +41,7 @@
                     <div class="col-md-4">
                         <ul class="usermenu">
                             @if(Auth::check())
-                            <li><a href="{{route('index')}}" class="log">Hello, {{Auth::user()->full_name}}</a></li>
+                            <li><a href="{{route('edit-info')}}" class="log">Hello, {{Auth::user()->full_name}}</a></li>
                             <li><a href="{{route('logout')}}" class="reg">Logout</a></li>
                             @else
                             <li><a href="{{route('login')}}" class="log">Login</a></li>
@@ -61,7 +61,7 @@
                         </form>
                     </li>
                     <li class="option-cart">
-                        <a href="#" class="cart-icon">cart <span class="cart_no">@if(Session::has('cart')) {{Session('cart')->totalQty}} @else Empty @endif</span></a>
+                        <a href="{{route('checkout')}}" class="cart-icon">cart <span class="cart_no">@if(Session::has('cart')) {{Session('cart')->totalQty}} @else Empty @endif</span></a>
                         <ul class="option-cart-item">
                             @if(Session::has('cart'))
                             @foreach($product_cart as $product)
@@ -101,6 +101,8 @@
                                 </ul>
                             </div>
                         </li>
+                        <li><a href="{{route('checkout')}}">Shopping cart</a></li>
+                        <li><a href="{{route('order-history')}}">Order History</a></li>
                         <li><a href="{{route('contact')}}">Contact us</a></li>
                     </ul>
                 </div>

@@ -47,18 +47,11 @@
                 @endif
                 <hr class="border">
                 <div class="wided">
-                <div class="qty">
-                    Qty &nbsp;&nbsp;: 
-                    <select>
-                    <option>
-                        1
-                    </option>
-                    </select>
-                </div>
+                <form action="{{route('add-to-cart', $product->id)}}" method="GET" class="qty">
+                    <input type="number" id="quantity" name="quantity" min="1" max="1000" value="1">
+                    <input type="submit" class="button" value="Add To Cart">
+                </form>
                 <div class="button_group">
-                    <a href="{{route('add-to-cart', $product->id)}}" class="button">
-                    Add To Cart
-                    </a>
                     <button class="button compare">
                     <i class="fa fa-exchange">
                     </i>
