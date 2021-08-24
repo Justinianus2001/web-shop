@@ -14,7 +14,7 @@
                     <form action="{{route('signup')}}" method="POST">
                         <div class="row">
                             <div class="col-md-6 col-sm-6">
-                                <input type="hidden" name="_token" value="{{csrf_token()}}">
+                                @csrf
                                 @if ($errors->any())
                                     <div class="alert alert-danger">
                                         <ul>

@@ -12,7 +12,7 @@
                         <h1>Collection For Winter</h1>
                     </div>
                     <div class="flat-caption caption3 formLeft delay500">
-                        <h2>Etiam velit purus, luctus vitae velit sedauctor<br>egestas diam, Etiam velit purus.</h2>
+                        <h2>Etiam velit purus, luctus vitae velit sedauctor<br>egestas diam, Etiam velit purus</h2>
                     </div>
                     <div class="flat-button caption5 formLeft delay600"><a class="more" href="#">More Details</a></div>
                     <div class="flat-image formBottom delay200" data-bottom="true"><a href="{{$sl->link}}"><img src="source/images/{{$sl->image}}" alt=""></div></a>

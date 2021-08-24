@@ -119,7 +119,7 @@
                 <form action="{{route('checkout')}}" method="POST">
                     <div class="row">
                         <div class="col-md-6 col-sm-6">
-                            <input type="hidden" name="_token" value="{{csrf_token()}}">
+                            @csrf
                             <div class="shippingbox">
                                 <h5>
                                     Information
@@ -127,7 +127,7 @@
                                 <form>
                                     <div class="form-block">
                                         <label for="name">Name *</label>
-                                        <input type="text" id="name" name="name" placeholder="Name" value="{{$user->full_name}}" required>
+                                        <input type="text" id="name" name="name" placeholder="Name" value="{{$user->name}}" required>
                                     </div>
                                     <div class="form-block">
                                         <label>Gender *</label>

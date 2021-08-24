@@ -4,6 +4,7 @@
       <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
       <meta name="description" content="">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="csrf-token" content="{{csrf_token()}}">
       <link rel="shortcut icon" href="source/images/favicon.png">
       <title>Welcome to FlatShop</title>
       <base href="{{asset(' ')}}"/>
@@ -24,12 +25,19 @@
          @include('footer')
       </div>
       <!-- Bootstrap core JavaScript==================================================-->
-	  <script type="text/javascript" src="source/js/jquery-1.10.2.min.js"></script>
-	  <script type="text/javascript" src="source/js/jquery.easing.1.3.js"></script>
-	  <script type="text/javascript" src="source/js/bootstrap.min.js"></script>
-	  <script type="text/javascript" src="source/js/jquery.sequence-min.js"></script>
-	  <script type="text/javascript" src="source/js/jquery.carouFredSel-6.2.1-packed.js"></script>
-	  <script defer src="source/js/jquery.flexslider.js"></script>
-	  <script type="text/javascript" src="source/js/script.min.js" ></script>
+      <script type="text/javascript" src="source/js/jquery-1.10.2.min.js"></script>
+      <script type="text/javascript" src="source/js/jquery.easing.1.3.js"></script>
+      <script type="text/javascript" src="source/js/bootstrap.min.js"></script>
+      <script type="text/javascript" src="source/js/jquery.sequence-min.js"></script>
+      <script type="text/javascript" src="source/js/jquery.carouFredSel-6.2.1-packed.js"></script>
+      <script defer src="source/js/jquery.flexslider.js"></script>
+      <script type="text/javascript" src="source/js/script.min.js" ></script>
+      <script>
+      $.ajaxSetup({
+         headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+         }
+      });
+      </script>
    </body>
 </html>

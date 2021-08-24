@@ -30,7 +30,7 @@
                     <tr class="even gradeC" align="center">
                     @endif
                         <td>{{$u->id}}</td>
-                        <td>{{$u->full_name}}</td>
+                        <td>{{$u->name}}</td>
                         <td>{{$u->email}}</td>
                         <td style="word-break: break-all;">{{$u->password}}</td>
                         <td>{{$u->phone}}</td>

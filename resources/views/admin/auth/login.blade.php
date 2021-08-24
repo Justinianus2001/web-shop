@@ -26,7 +26,7 @@
                         </div>
                         <div class="panel-body">
                             <form role="form" action="{{route('admin.login')}}" method="POST">
-                                <input type="hidden" name="_token" value="{{csrf_token()}}">
+                                @csrf
                                 <fieldset>
                                     @if ($errors->any())
                                         <div class="alert alert-danger">

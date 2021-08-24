@@ -63,20 +63,16 @@ class PageController extends Controller
     }
 
     public function getAddToCart(Request $request, $id) {
-        if (Auth::check()) {
-            $qty = 1;
-            if (!empty($request->quantity)) {
-                $qty = $request->quantity;
-            }
-            $product = Product::find($id);
-            $oldCart = Session('cart') ? Session::get('cart') : null;
-            $cart = new Cart($oldCart);
-            $cart->add($product, $id, $qty);
-            $request->session()->put('cart', $cart);
-            return redirect()->back();
-        } else {
-            return redirect()->route('login');
+        $qty = 1;
+        if (!empty($request->quantity)) {
+            $qty = $request->quantity;
         }
+        $product = Product::find($id);
+        $oldCart = Session('cart') ? Session::get('cart') : null;
+        $cart = new Cart($oldCart);
+        $cart->add($product, $id, $qty);
+        $request->session()->put('cart', $cart);
+        return redirect()->back();
     }
 
     public function getDelCart(Request $request, $id) {
@@ -92,78 +88,58 @@ class PageController extends Controller
     }
 
     public function getCheckOut() {
-        if (Auth::check()) {
-            $user = Auth::user();
-            return view('page.checkout', compact('user'));
-        } else {
-            return redirect()->route('login');
-        }
+        $user = Auth::guard('web')->user();
+        return view('page.checkout', compact('user'));
     }
 
     public function postCheckOut(Request $request) {
-        if (Auth::check()) {
-            $cart = Session::get('cart');
-            $customer = new Customer;
-            $customer->name = $request->name;
-            $customer->gender = $request->gender;
-            $customer->email = $request->email;
-            $customer->address = $request->address;
-            $customer->phone_number = $request->phone;
-            $customer->note = $request->note;
-            $customer->save();
+        $cart = Session::get('cart');
+        $customer = new Customer;
+        $customer->name = $request->name;
+        $customer->gender = $request->gender;
+        $customer->email = $request->email;
+        $customer->address = $request->address;
+        $customer->phone_number = $request->phone;
+        $customer->note = $request->note;
+        $customer->save();
 
-            $user = Auth::user();
+        $user = Auth::guard('web')->user();
 
-            $bill = new Bill;
-            $bill->id_user = $user->id;
-            $bill->id_customer = $customer->id;
-            $bill->date_order = date('Y-m-d');
-            $bill->total = $cart->totalPrice;
-            $bill->payment = $request->payment_method;
-            $bill->note = $request->note;
-            $bill->status = 0;
-            $bill->save();
+        $bill = new Bill;
+        $bill->id_user = $user->id;
+        $bill->id_customer = $customer->id;
+        $bill->date_order = date('Y-m-d');
+        $bill->total = $cart->totalPrice;
+        $bill->payment = $request->payment_method;
+        $bill->note = $request->note;
+        $bill->status = 0;
+        $bill->save();
 
-            foreach ($cart->items as $key => $value) {
-                $bill_detail = new BillDetail;
-                $bill_detail->id_bill = $bill->id;
-                $bill_detail->id_product = $key;
-                $bill_detail->quantity = $value['qty'];
-                $bill_detail->unit_price = $value['price'] / $value['qty'];
-                $bill_detail->save();
-            }
-            Session::forget('cart');
-            return redirect()->route('order-history');
-        } else {
-            return redirect()->route('login');
+        foreach ($cart->items as $key => $value) {
+            $bill_detail = new BillDetail;
+            $bill_detail->id_bill = $bill->id;
+            $bill_detail->id_product = $key;
+            $bill_detail->quantity = $value['qty'];
+            $bill_detail->unit_price = $value['price'] / $value['qty'];
+            $bill_detail->save();
         }
+        Session::forget('cart');
+        return redirect()->route('order-history');
     }
 
     public function getOrderHistory() {
-        if (Auth::check()) {
-            $userId = Auth::user()->id;
-            $bill = Bill::where('id_user', $userId)->get();
-            return view('page.order_history', compact('bill'));
-        } else {
-            return redirect()->route('login');
-        }
+        $userId = Auth::guard('web')->user()->id;
+        $bill = Bill::where('id_user', $userId)->get();
+        return view('page.order_history', compact('bill'));
     }
 
     public function getOrderHistoryDetail($id) {
-        if (Auth::check()) {
-            $list_product = BillDetail::where('id_bill', $id)->leftJoin('products', 'id_product', 'products.id')->get();
-            return view('page.order_history_detail', compact('list_product'));
-        } else {
-            return redirect()->route('login');
-        }
+        $list_product = BillDetail::where('id_bill', $id)->leftJoin('products', 'id_product', 'products.id')->get();
+        return view('page.order_history_detail', compact('list_product'));
     }
 
     public function getLogin() {
-        if (Auth::check()) {
-            return redirect()->route('index');
-        } else {
-            return view('page.login');
-        }
+        return redirect()->route('index');
     }
 
     public function postLogin(Request $request) {
@@ -179,7 +155,7 @@ class PageController extends Controller
             ]
         );
         $credentials = array('email' => $request->email, 'password' => $request->password);
-        if (Auth::attempt($credentials)) {
+        if (Auth::guard('web')->attempt($credentials)) {
             return redirect()->route('index');
         } else {
             return redirect()->back();
@@ -187,7 +163,8 @@ class PageController extends Controller
     }
 
     public function getLogout() {
-        Auth::logout();
+        Session::forget('cart');
+        Auth::guard('web')->logout();
         return redirect()->route('index');
     }
 
@@ -218,7 +195,7 @@ class PageController extends Controller
             ]
         );
         $user = new User;
-        $user->full_name = $request->name;
+        $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->phone = $request->phone;
@@ -228,47 +205,39 @@ class PageController extends Controller
     }
 
     public function getEditInfo() {
-        if (Auth::check()) {
-            $user = Auth::user();
-            return view('page.info_edit', compact('user'));
-        } else {
-            return redirect()->route('login');
-        }
+        $user = Auth::guard('web')->user();
+        return view('page.info_edit', compact('user'));
     }
 
     public function postEditInfo(Request $request) {
-        if (Auth::check()) {
-            $userId = Auth::user()->id;
-            $this->validate($request, [
-                    'email' => 'required|email|unique:admins,username,' . $userId,
-                    'full_name' => 'required',
-                    'phone' => 'required',
-                    'new_password' => 'nullable|min:6|max:20',
-                    'address' => 'required'
-                ], [
-                    'email.required' => 'Email not null',
-                    'email.email' => 'Wrong email format',
-                    'email.unique' => 'Email has been used',
-                    'full_name.required' => 'Full Name not null',
-                    'phone.required' => 'Phone not null',
-                    'new_password.min' => 'Password length must contain at least 6 characters',
-                    'new_password.max' => 'Password length must contain at most 20 characters',
-                    'address.required' => 'Address not null'
-                ]
-            );
-            $user = User::find($userId);
-            $user->full_name = $request->full_name;
-            $user->email = $request->email;
-            if (!empty($request->new_password)) {
-                $user->password = Hash::make($request->new_password);
-            }
-            $user->phone = $request->phone;
-            $user->address = $request->address;
-            $user->save();
-            return redirect()->back();
-        } else {
-            return redirect()->route('login');
+        $userId = Auth::guard('web')->user()->id;
+        $this->validate($request, [
+                'email' => 'required|email|unique:admins,username,' . $userId,
+                'name' => 'required',
+                'phone' => 'required',
+                'new_password' => 'nullable|min:6|max:20',
+                'address' => 'required'
+            ], [
+                'email.required' => 'Email not null',
+                'email.email' => 'Wrong email format',
+                'email.unique' => 'Email has been used',
+                'full_name.required' => 'Full Name not null',
+                'phone.required' => 'Phone not null',
+                'new_password.min' => 'Password length must contain at least 6 characters',
+                'new_password.max' => 'Password length must contain at most 20 characters',
+                'address.required' => 'Address not null'
+            ]
+        );
+        $user = User::find($userId);
+        $user->name = $request->name;
+        $user->email = $request->email;
+        if (!empty($request->new_password)) {
+            $user->password = Hash::make($request->new_password);
         }
+        $user->phone = $request->phone;
+        $user->address = $request->address;
+        $user->save();
+        return redirect()->back();
     }
 
     public function getSearch(Request $request) {

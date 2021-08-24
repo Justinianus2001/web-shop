@@ -7,7 +7,7 @@
                 <form action="{{route('edit-info')}}" method="POST">
                     <div class="row">
                         <div class="col-md-6 col-sm-6">
-                            <input type="hidden" name="_token" value="{{csrf_token()}}">
+                            @csrf
                             @if ($errors->any())
                                 <div class="alert alert-danger">
                                     <ul>
@@ -23,8 +23,8 @@
                                 </h5>
                                 <form>
                                     <div class="form-block">
-                                        <label for="full_name">Full Name *</label>
-                                        <input type="text" id="full_name" name="full_name" placeholder="Full Name" value="{{$user->full_name}}" required>
+                                        <label for="name">Full Name *</label>
+                                        <input type="text" id="name" name="name" placeholder="Full Name" value="{{$user->name}}" required>
                                     </div>
                                     <div class="form-block">
                                         <label for="email">Email *</label>

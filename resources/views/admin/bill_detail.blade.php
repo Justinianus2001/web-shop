@@ -28,7 +28,7 @@
                 </thead>
                 <tbody>
                     <tr class="odd gradeX" align="center">
-                        <td>{{$user->full_name}}</td>
+                        <td>{{$user->name}}</td>
                         <td>{{$user->email}}</td>
                         <td>{{$user->address}}</td>
                         <td>{{$user->phone}}</td>

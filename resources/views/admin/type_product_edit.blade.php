@@ -11,7 +11,7 @@
             <!-- /.col-lg-12 -->
             <div class="col-lg-7" style="padding-bottom:120px">
                 <form action="{{route('admin/type-product/edit', $type_product->id)}}" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="_token" value="{{csrf_token()}}">
+                    @csrf
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul>

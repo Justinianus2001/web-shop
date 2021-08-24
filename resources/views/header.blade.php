@@ -41,7 +41,7 @@
                     <div class="col-md-4">
                         <ul class="usermenu">
                             @if(Auth::check())
-                            <li><a href="{{route('edit-info')}}" class="log">Hello, {{Auth::user()->full_name}}</a></li>
+                            <li><a href="{{route('edit-info')}}" class="log">Hello, {{Auth::user()->name}}</a></li>
                             <li><a href="{{route('logout')}}" class="reg">Logout</a></li>
                             @else
                             <li><a href="{{route('login')}}" class="log">Login</a></li>

@@ -11,7 +11,7 @@
             <!-- /.col-lg-12 -->
             <div class="col-lg-7" style="padding-bottom:120px">
                 <form action="{{route('admin/user/add')}}" method="POST">
-                    <input type="hidden" name="_token" value="{{csrf_token()}}">
+                    @csrf
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul>
@@ -22,8 +22,8 @@
                         </div>
                     @endif
                     <div class="form-group">
-                        <label for="full_name">Full Name</label>
-                        <input class="form-control" name="full_name" id="full_name">
+                        <label for="name">Full Name</label>
+                        <input class="form-control" name="name" id="name">
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
